@@ -5,14 +5,18 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
+const ORIGIN = "Manggarai";
+const DESTINATION = "JIS";
+
 const routeOptions: routeOptionItem[] = [
   {
     id: 1,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" }, // Jalan kaki menuju Stasiun Manggarai
-      { mode: "transjakarta", destination: "Halte Sunter Kelapa Gading" }, // Naik TJ Koridor 10 arah Tanjung Priok
-      { mode: "jaklingko", destination: "Halte JIS" }, // Naik JakLingko JAK-88/JAK-99 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju pintu masuk JIS
+      { mode: "walk", destination: "Stasiun Manggarai" },
+      { mode: "transjakarta", destination: "Halte Sunter Kelapa Gading" },
+      { mode: "jaklingko", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 55,
     fare: 7000,
@@ -21,11 +25,12 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 2,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" }, // Jalan kaki menuju Stasiun
-      { mode: "mrt", destination: "Stasiun Bundaran HI" }, // Naik KRL/MRT menuju Bundaran HI (via integrasi)
-      { mode: "transjakarta", destination: "Halte JIS" }, // Naik TJ Koridor 1/10 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju Tujuan
+      { mode: "walk", destination: "Stasiun Manggarai" },
+      { mode: "mrt", destination: "Stasiun Bundaran HI" },
+      { mode: "transjakarta", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 65,
     fare: 12000,
@@ -34,11 +39,12 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 3,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Halte Manggarai" }, // Jalan kaki menuju Halte TJ
-      { mode: "transjakarta", destination: "Halte Monas" }, // Naik TJ Koridor 4 arah Monas
-      { mode: "transjakarta", destination: "Halte JIS" }, // Transit TJ Koridor 10 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju Tujuan
+      { mode: "walk", destination: "Halte Manggarai" },
+      { mode: "transjakarta", destination: "Halte Monas" },
+      { mode: "transjakarta", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 70,
     fare: 3500,
@@ -47,11 +53,12 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 4,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" }, // Jalan kaki menuju Stasiun
-      { mode: "jaklingko", destination: "Halte Pasar Genjing" }, // Naik JakLingko JAK-34 arah Rawamangun
-      { mode: "transjakarta", destination: "Halte JIS" }, // Naik TJ Koridor 10 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju Tujuan
+      { mode: "walk", destination: "Stasiun Manggarai" },
+      { mode: "jaklingko", destination: "Halte Pasar Genjing" },
+      { mode: "transjakarta", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 75,
     fare: 3500,
@@ -60,11 +67,12 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 5,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Halte Manggarai" }, // Jalan kaki menuju Halte
-      { mode: "jaklingko", destination: "Halte Cempaka Mas" }, // Naik JakLingko JAK-60 arah Cempaka Mas
-      { mode: "transjakarta", destination: "Halte JIS" }, // Naik TJ Koridor 10 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju Tujuan
+      { mode: "walk", destination: "Halte Manggarai" },
+      { mode: "jaklingko", destination: "Halte Cempaka Mas" },
+      { mode: "transjakarta", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 80,
     fare: 3500,
@@ -73,11 +81,12 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 6,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" }, // Jalan kaki menuju Stasiun
-      { mode: "mrt", destination: "Stasiun Dukuh Atas" }, // Naik KRL/MRT menuju Dukuh Atas
-      { mode: "transjakarta", destination: "Halte JIS" }, // Naik TJ Koridor 1/10 arah JIS
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki menuju Tujuan
+      { mode: "walk", destination: "Stasiun Manggarai" },
+      { mode: "mrt", destination: "Stasiun Dukuh Atas" },
+      { mode: "transjakarta", destination: "Halte JIS" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 60,
     fare: 10000,
@@ -86,10 +95,11 @@ const routeOptions: routeOptionItem[] = [
   },
   {
     id: 7,
+    origin: ORIGIN,
     transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" }, // Jalan kaki menuju Stasiun
-      { mode: "jaklingko", destination: "Halte Ancol" }, // Naik JakLingko/KRL terintegrasi arah Ancol
-      { mode: "walk", destination: "Tujuan Akhir" }, // Jalan kaki singkat menuju JIS dari Ancol
+      { mode: "walk", destination: "Stasiun Manggarai" },
+      { mode: "jaklingko", destination: "Halte Ancol" },
+      { mode: "walk", destination: "JIS" },
     ],
     totalTime: 50,
     fare: 8000,
@@ -110,9 +120,7 @@ const modeMap = {
 const TravelTypeButton = ({ name, current, onPress }: travelTypeProps) => (
   <Pressable onPress={() => onPress(name)}>
     <Text
-      className={`${
-        current === name ? "bg-light-1 text-dark-1" : "bg-dark-4 text-light-1"
-      } font-bold border border-light-3/20 px-4 py-2 rounded-xl leading-tight`}
+      className={`${current === name ? "bg-light-1 text-dark-1" : "bg-dark-4 text-light-1"} font-bold border border-light-3/20 px-4 py-2 rounded-xl leading-tight`}
     >
       {name}
     </Text>
@@ -121,7 +129,6 @@ const TravelTypeButton = ({ name, current, onPress }: travelTypeProps) => (
 
 const RouteOptionCard = ({ item }: routeOptionProp) => {
   const router = useRouter();
-
   return (
     <Pressable
       onPress={() =>
@@ -161,8 +168,6 @@ const RouteOptionCard = ({ item }: routeOptionProp) => {
 };
 
 export default function RouteScreen() {
-  const origin = "Manggarai";
-  const destination = "JIS";
   const travelTypes = ["Semua", "Tenang", "Murah", "Cepat", "Nyaman"];
   const [selectedTravelType, setSelectedTravelType] = useState("Semua");
 
@@ -177,7 +182,7 @@ export default function RouteScreen() {
   return (
     <View className="flex-1 bg-[#18181B]">
       <ScrollView
-        contentContainerClassName="px-5 pt-28 pb-28 gap-6"
+        contentContainerClassName="px-5 pt-14 pb-28 gap-6"
         showsVerticalScrollIndicator={false}
       >
         <View className="gap-2.5">
@@ -186,7 +191,7 @@ export default function RouteScreen() {
           </Text>
           <Text className="text-light-2 text-center">
             Rute Anda adalah{"\n"}
-            {origin} — {destination}
+            {ORIGIN} — {DESTINATION}
           </Text>
         </View>
         <ScrollView

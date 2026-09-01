@@ -8,7 +8,7 @@ export default function AccountScreen() {
     <View className="flex-1 bg-[#18181B]">
       <ScrollView
         className="flex-1"
-        contentContainerClassName="pt-28 px-5 items-center gap-6"
+        contentContainerClassName="pt-14 pb-28 px-5 items-center gap-6"
         showsVerticalScrollIndicator={false}
       >
         <AccountCard />

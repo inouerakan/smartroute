@@ -10,7 +10,7 @@ export default function Index() {
     <View className="flex-1 bg-[#18181B]">
       <ScrollView
         className="flex-1"
-        contentContainerClassName="px-5 items-center gap-6 py-28"
+        contentContainerClassName="px-5 items-center gap-6 pt-14 pb-28"
         showsVerticalScrollIndicator={false}
       >
         {/* Greetings */}

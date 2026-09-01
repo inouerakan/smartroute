@@ -3,7 +3,9 @@ import { JSX } from "react";
 import { Pressable, View } from "react-native";
 import Text from "./Text";
 
-// Gunakan tipe fleksibel untuk props dari Expo Router Tabs
+// Definisikan tab yang ingin ditampilkan
+const ALLOWED_TABS = ["index", "route", "account"];
+
 export default function CustomTabBar({ state, descriptors, navigation }: any) {
   const icons: Record<
     string,
@@ -30,11 +32,21 @@ export default function CustomTabBar({ state, descriptors, navigation }: any) {
     },
   };
 
+  // Filter hanya route yang diizinkan
+  const filteredRoutes = state.routes.filter((route: any) =>
+    ALLOWED_TABS.includes(route.name),
+  );
+
   return (
     <View className="absolute -bottom-1 left-0 right-0 items-center">
       <View className="w-full bg-dark-2 rounded-t-3xl pt-3 pb-6 px-6 flex-row justify-around items-center shadow-lg border-t border-x border-light-3/10">
-        {state.routes.map((route: any, index: number) => {
-          const isFocused = state.index === index;
+        {filteredRoutes.map((route: any, index: number) => {
+          // Cari index asli dari route untuk mengecek isFocused
+          const originalIndex = state.routes.findIndex(
+            (r: any) => r.key === route.key,
+          );
+          const isFocused = state.index === originalIndex;
+
           const item = icons[route.name] || {
             active: <Ionicons name="ellipse" size={22} color="#FFFFFF" />,
             inactive: (

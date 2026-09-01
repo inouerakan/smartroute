@@ -7,6 +7,7 @@ export type routeStep = {
 
 export type routeOptionItem = {
   id: number;
+  origin: string;
   transitSequence: routeStep[];
   totalTime: number;
   fare: number;

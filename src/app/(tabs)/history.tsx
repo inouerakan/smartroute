@@ -161,7 +161,7 @@ export default function HistoryScreen() {
         renderItem={renderHistoryCard}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        contentContainerClassName="pt-28 pb-8 px-5"
+        contentContainerClassName="pt-14 pb-28 px-5"
         // Menampilkan judul Bulan & Tahun per grup data
         renderSectionHeader={({ section: { title } }) => (
           <Text className="text-md text-light-1 font-bold my-3 bg-dark-3 py-1">

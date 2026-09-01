@@ -1,4 +1,3 @@
-import Header from "@/components/Header";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { ActivityIndicator, View } from "react-native";
@@ -19,10 +18,9 @@ export default function RootLayout() {
 
   return (
     <View className="flex-1 bg-[#18181B]">
-      <Header />
+      {/* <Header /> */}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="history" />
       </Stack>
     </View>
   );
