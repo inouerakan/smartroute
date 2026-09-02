@@ -8,9 +8,13 @@
     "scheme": "smartroute",
     "userInterfaceStyle": "automatic",
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Izinkan SmartRoute mengakses lokasi Anda untuk navigasi."
+      },
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "permissions": ["ACCESS_FINE_LOCATION", "ACCESS_COARSE_LOCATION"],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -27,6 +31,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Izinkan SmartRoute mengakses lokasi Anda untuk navigasi"
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#208AEF",
@@ -34,8 +44,7 @@
           "imageWidth": 76
         }
       ],
-      "expo-font",
-      "@maplibre/maplibre-react-native"
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,

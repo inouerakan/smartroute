@@ -1,183 +1,135 @@
+// src/app/route.tsx
 import Text from "@/components/Text";
-import { routeOptionItem, routeOptionProp, travelTypeProps } from "@/type";
+import { mockApiResponse } from "@/data/mockRoutes";
+import { RouteItem } from "@/type";
 import { FontAwesome6, Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, View } from "react-native";
 
-const ORIGIN = "Manggarai";
-const DESTINATION = "JIS";
-
-const routeOptions: routeOptionItem[] = [
-  {
-    id: 1,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" },
-      { mode: "transjakarta", destination: "Halte Sunter Kelapa Gading" },
-      { mode: "jaklingko", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 55,
-    fare: 7000,
-    rating: 8.7,
-    type: "nyaman",
-  },
-  {
-    id: 2,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" },
-      { mode: "mrt", destination: "Stasiun Bundaran HI" },
-      { mode: "transjakarta", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 65,
-    fare: 12000,
-    rating: 8.2,
-    type: "cepat",
-  },
-  {
-    id: 3,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Halte Manggarai" },
-      { mode: "transjakarta", destination: "Halte Monas" },
-      { mode: "transjakarta", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 70,
-    fare: 3500,
-    rating: 8.0,
-    type: "tenang",
-  },
-  {
-    id: 4,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" },
-      { mode: "jaklingko", destination: "Halte Pasar Genjing" },
-      { mode: "transjakarta", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 75,
-    fare: 3500,
-    rating: 7.8,
-    type: "murah",
-  },
-  {
-    id: 5,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Halte Manggarai" },
-      { mode: "jaklingko", destination: "Halte Cempaka Mas" },
-      { mode: "transjakarta", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 80,
-    fare: 3500,
-    rating: 7.0,
-    type: "murah",
-  },
-  {
-    id: 6,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" },
-      { mode: "mrt", destination: "Stasiun Dukuh Atas" },
-      { mode: "transjakarta", destination: "Halte JIS" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 60,
-    fare: 10000,
-    rating: 8.5,
-    type: "nyaman",
-  },
-  {
-    id: 7,
-    origin: ORIGIN,
-    transitSequence: [
-      { mode: "walk", destination: "Stasiun Manggarai" },
-      { mode: "jaklingko", destination: "Halte Ancol" },
-      { mode: "walk", destination: "JIS" },
-    ],
-    totalTime: 50,
-    fare: 8000,
-    rating: 8.9,
-    type: "cepat",
-  },
-];
-
-const modeMap = {
-  walk: () => <Ionicons name="walk" size={20} color="#FFFFFF" />,
-  transjakarta: () => <Ionicons name="bus" size={20} color="#FFFFFF" />,
-  mrt: () => <Ionicons name="train" size={20} color="#FFFFFF" />,
-  jaklingko: () => (
-    <FontAwesome6 name="van-shuttle" size={20} color="#FFFFFF" />
-  ),
+// Helper untuk menentukan label tipe berdasarkan karakteristik rute
+const getRouteTypeLabel = (item: RouteItem): string => {
+  if (item.recommendation_score >= 0.9) return "Rekomendasi";
+  if (item.travel_time_minutes <= 30) return "Cepat";
+  if (item.cost_idr <= 4000) return "Murah";
+  if (item.crowd.predicted_level === "LOW") return "Tenang";
+  return "Nyaman";
 };
 
-const TravelTypeButton = ({ name, current, onPress }: travelTypeProps) => (
-  <Pressable onPress={() => onPress(name)}>
-    <Text
-      className={`${current === name ? "bg-light-1 text-dark-1" : "bg-dark-4 text-light-1"} font-bold border border-light-3/20 px-4 py-2 rounded-xl leading-tight`}
-    >
-      {name}
-    </Text>
-  </Pressable>
-);
+const getModeIcon = (mode: string) => {
+  switch (mode.toLowerCase()) {
+    case "walk":
+      return <Ionicons name="walk" size={18} color="#FFFFFF" />;
+    case "transjakarta":
+      return <Ionicons name="bus" size={18} color="#FFFFFF" />;
+    case "mrt":
+      return <Ionicons name="train" size={18} color="#FFFFFF" />;
+    case "krl":
+      return <Ionicons name="train" size={18} color="#FFFFFF" />;
+    case "jaklingko":
+      return <FontAwesome6 name="van-shuttle" size={16} color="#FFFFFF" />;
+    default:
+      return <Ionicons name="navigate" size={18} color="#FFFFFF" />;
+  }
+};
 
-const RouteOptionCard = ({ item }: routeOptionProp) => {
+const RouteOptionCard = ({
+  item,
+  originName,
+}: {
+  item: RouteItem;
+  originName: string;
+}) => {
   const router = useRouter();
+  const typeLabel = getRouteTypeLabel(item);
+
+  // Warna rating berdasarkan skor rekomendasi (0-1 -> 0-10)
+  const score10 = Math.round(item.recommendation_score * 10);
+  const scoreColor =
+    score10 >= 8
+      ? "text-primary-emerald"
+      : score10 >= 6
+        ? "text-yellow-400"
+        : "text-accent";
+
   return (
     <Pressable
       onPress={() =>
         router.push({
           pathname: "/route/[id]",
-          params: { data: JSON.stringify(item) },
+          params: {
+            data: JSON.stringify(item),
+            origin: originName,
+          },
         })
       }
-      className="bg-dark-2 px-4 py-4 gap-2 rounded-xl active:opacity-95"
+      className="bg-dark-2 px-4 py-4 gap-3 rounded-xl active:opacity-95 border border-light-3/5"
     >
-      <Text className="bg-light-1/25 font-bold mr-auto text-light-1 text-sm px-2 leading-tight py-1 rounded-md capitalize">
-        {item.type}
-      </Text>
-      <View className="flex-1 flex-row items-center justify-between">
-        <View className="flex-row gap-1">
-          {item.transitSequence.map((order, index) => {
-            const IconComponent = modeMap[order.mode as keyof typeof modeMap];
-            const isLast = index === item.transitSequence.length - 1;
+      <View className="flex-row justify-between items-center">
+        <Text className="bg-light-1/10 font-bold text-light-1 text-xs px-2.5 py-1 rounded-md capitalize border border-light-1/10">
+          {typeLabel}
+        </Text>
+        {item.crowd.predicted_level === "HIGH" && (
+          <View className="flex-row items-center gap-1 bg-red-500/20 px-2 py-0.5 rounded">
+            <Ionicons name="people" size={12} color="#EF4444" />
+            <Text className="text-red-400 text-[10px] font-bold">PADAT</Text>
+          </View>
+        )}
+      </View>
+
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row gap-1.5 items-center flex-1">
+          {item.legs.map((leg, index) => {
+            const isLast = index === item.legs.length - 1;
             return (
-              <View key={index} className="flex-row gap-1 items-center">
-                {IconComponent ? IconComponent() : null}
-                {!isLast && <Ionicons name="chevron-forward" color="#FFFFFF" />}
+              <View key={index} className="flex-row items-center gap-1">
+                {getModeIcon(leg.mode)}
+                {!isLast && (
+                  <Ionicons name="chevron-forward" size={14} color="#52525B" />
+                )}
               </View>
             );
           })}
         </View>
-        <Text
-          className={`font-bold text-2xl ${item.rating < 8 ? "text-accent" : "text-primary-emerald"}`}
-        >{`${item.rating}/10`}</Text>
+        <Text className={`font-bold text-xl ${scoreColor}`}>
+          {score10}
+          <Text className="text-sm text-light-3">/10</Text>
+        </Text>
       </View>
-      <View className="flex-1 flex-row justify-between">
-        <Text className="text-sm text-light-2">{`${item.totalTime} Menit`}</Text>
-        <Text className="text-sm text-light-2">{`Rp. ${item.fare}`}</Text>
+
+      <View className="flex-row justify-between items-center pt-1 border-t border-light-3/10">
+        <View className="flex-row gap-3">
+          <View className="flex-row items-center gap-1">
+            <Ionicons name="time-outline" size={14} color="#A1A1AA" />
+            <Text className="text-xs text-light-2">
+              {item.travel_time_minutes} mnt
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <Ionicons name="swap-horizontal" size={14} color="#A1A1AA" />
+            <Text className="text-xs text-light-2">
+              {item.transfers}x transit
+            </Text>
+          </View>
+        </View>
+        <Text className="text-sm font-semibold text-light-1">
+          Rp {item.cost_idr.toLocaleString()}
+        </Text>
       </View>
     </Pressable>
   );
 };
 
 export default function RouteScreen() {
-  const travelTypes = ["Semua", "Tenang", "Murah", "Cepat", "Nyaman"];
-  const [selectedTravelType, setSelectedTravelType] = useState("Semua");
+  const [selectedFilter, setSelectedFilter] = useState("Semua");
+  const filters = ["Semua", "Rekomendasi", "Cepat", "Murah", "Tenang"];
 
-  const filteredRouteOptions = routeOptions
-    .filter(
-      (item) =>
-        selectedTravelType === "Semua" ||
-        item.type === selectedTravelType.toLocaleLowerCase(),
-    )
-    .sort((a, b) => b.rating - a.rating);
+  const filteredRoutes = mockApiResponse.routes
+    .filter((item) => {
+      if (selectedFilter === "Semua") return true;
+      return getRouteTypeLabel(item) === selectedFilter;
+    })
+    .sort((a, b) => b.recommendation_score - a.recommendation_score);
 
   return (
     <View className="flex-1 bg-[#18181B]">
@@ -185,32 +137,36 @@ export default function RouteScreen() {
         contentContainerClassName="px-5 pt-14 pb-28 gap-6"
         showsVerticalScrollIndicator={false}
       >
-        <View className="gap-2.5">
-          <Text className="text-4xl font-bold text-light-1 text-center">
-            Hasil Rute
-          </Text>
-          <Text className="text-light-2 text-center">
-            Rute Anda adalah{"\n"}
-            {ORIGIN} — {DESTINATION}
+        <View className="gap-2">
+          <Text className="text-3xl font-bold text-light-1">Hasil Rute</Text>
+          <Text className="text-light-2 text-sm">
+            {mockApiResponse.origin.name} → {mockApiResponse.destination.name}
           </Text>
         </View>
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerClassName="gap-2"
         >
-          {travelTypes.map((item) => (
-            <TravelTypeButton
-              key={item}
-              name={item}
-              current={selectedTravelType}
-              onPress={setSelectedTravelType}
-            />
+          {filters.map((f) => (
+            <Pressable key={f} onPress={() => setSelectedFilter(f)}>
+              <Text
+                className={`${selectedFilter === f ? "bg-light-1 text-dark-1" : "bg-dark-4 text-light-2"} font-semibold text-xs px-4 py-2 rounded-full border border-light-3/10`}
+              >
+                {f}
+              </Text>
+            </Pressable>
           ))}
         </ScrollView>
-        <View className="gap-4">
-          {filteredRouteOptions.map((item) => (
-            <RouteOptionCard key={item.id} item={item} />
+
+        <View className="gap-3">
+          {filteredRoutes.map((item) => (
+            <RouteOptionCard
+              key={item.route_id}
+              item={item}
+              originName={mockApiResponse.origin.name}
+            />
           ))}
         </View>
       </ScrollView>

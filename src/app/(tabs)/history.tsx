@@ -2,7 +2,7 @@ import InfoCard from "@/components/InfoCard";
 import Text from "@/components/Text";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { FlatList, Pressable, SectionList, View } from "react-native";
+import { Pressable, ScrollView, SectionList, View } from "react-native";
 
 type HistoryItem = {
   id: string;
@@ -16,11 +16,10 @@ type HistoryItem = {
 };
 
 type HistorySection = {
-  title: string; // Bulan & Tahun
+  title: string;
   data: HistoryItem[];
 };
 
-// Data dummy yang lebih banyak dan dikelompokkan berdasarkan Bulan & Tahun
 const SECTIONS_DATA: HistorySection[] = [
   {
     title: "Juni 2026",
@@ -98,7 +97,6 @@ export default function HistoryScreen() {
   const transportTypes = ["Semua", "MRT", "Transjakarta", "Multi-moda"];
   const [selectedType, setSelectedType] = useState("Semua");
 
-  // Filter data per section berdasarkan jenis transportasi yang dipilih
   const filteredSections = SECTIONS_DATA.map((section) => ({
     ...section,
     data: section.data.filter(
@@ -108,7 +106,6 @@ export default function HistoryScreen() {
 
   const renderHistoryCard = ({ item }: { item: HistoryItem }) => (
     <View className="bg-dark-2 p-4 rounded-xl mb-3 shadow-sm">
-      {/* Baris Atas: Rute & Harga */}
       <View className="flex-row justify-between items-center">
         <View className="flex-row items-center gap-2 max-w-[70%]">
           <Text
@@ -130,7 +127,6 @@ export default function HistoryScreen() {
         <Text className="text-light-1 font-bold text-base">{item.harga}</Text>
       </View>
 
-      {/* Baris Tengah: Tanggal/Waktu & Rating */}
       <View className="flex-row justify-between items-center mt-1">
         <Text className="text-light-3 text-xs">{item.waktu}</Text>
         <Text
@@ -140,7 +136,6 @@ export default function HistoryScreen() {
         </Text>
       </View>
 
-      {/* Baris Bawah: Ikon Transportasi & Badge Durasi */}
       <View className="flex-row items-center justify-between mt-3">
         <View className="flex-row items-center gap-3">
           <Ionicons name="walk" size={18} color="#FFFFFF" />
@@ -162,9 +157,8 @@ export default function HistoryScreen() {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         contentContainerClassName="pt-14 pb-28 px-5"
-        // Menampilkan judul Bulan & Tahun per grup data
         renderSectionHeader={({ section: { title } }) => (
-          <Text className="text-md text-light-1 font-bold my-3 bg-dark-3 py-1">
+          <Text className="text-md text-light-1 font-bold my-3 py-1">
             {title}
           </Text>
         )}
@@ -177,27 +171,22 @@ export default function HistoryScreen() {
               <InfoCard title="28.8 kg" desc="CO2 Hemat" />
             </View>
 
-            {/* Filter Categories */}
-            <FlatList
+            {/* Filter Categories - UPDATED MATCHING route.tsx */}
+            <ScrollView
               horizontal
-              data={transportTypes}
-              keyExtractor={(item) => item}
               showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-4"
-              renderItem={({ item }) => (
-                <Pressable onPress={() => setSelectedType(item)}>
+              contentContainerClassName="gap-2"
+            >
+              {transportTypes.map((item) => (
+                <Pressable key={item} onPress={() => setSelectedType(item)}>
                   <Text
-                    className={`${
-                      selectedType === item
-                        ? "bg-light-1 text-dark-1"
-                        : "bg-dark-4 text-light-1"
-                    } font-bold border border-light-3/20 px-4 py-2 rounded-xl leading-tight`}
+                    className={`${selectedType === item ? "bg-light-1 text-dark-1" : "bg-dark-4 text-light-2"} font-semibold text-xs px-4 py-2 rounded-full border border-light-3/10`}
                   >
                     {item}
                   </Text>
                 </Pressable>
-              )}
-            />
+              ))}
+            </ScrollView>
           </View>
         }
       />

@@ -1,80 +1,89 @@
-import { routeOptionProp } from "@/type";
+// src/components/RouteDetailCard.tsx
+import { RouteItem } from "@/type";
 import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
 import Text from "./Text";
 
-export default function RouteDetailCard({ item }: routeOptionProp) {
-  const modeMap: Record<string, string> = {
-    walk: "Jalan kaki",
-    transjakarta: "Naik TransJakarta",
-    mrt: "Naik MRT",
-    jaklingko: "Naik JakLingko",
+interface Props {
+  item: RouteItem;
+  originName: string;
+}
+
+export default function RouteDetailCard({ item, originName }: Props) {
+  const getModeLabel = (mode: string) => {
+    switch (mode.toLowerCase()) {
+      case "walk":
+        return "Jalan kaki";
+      case "krl":
+        return "Naik KRL";
+      case "mrt":
+        return "Naik MRT";
+      case "transjakarta":
+        return "Naik TransJakarta";
+      case "jaklingko":
+        return "Naik JakLingko";
+      default:
+        return `Naik ${mode}`;
+    }
   };
 
   return (
-    <View className="bg-dark-2 border border-light-1/10 rounded-xl">
-      <View className="flex-1 flex-row bg-dark-4 p-4 justify-between rounded-t-xl">
-        <Text className="text-md font-bold text-light-1 bg-light-1/50 px-4 py-2 leading-tight rounded-xl capitalize">
-          {item.type}
-        </Text>
-        <Text
-          className={`text-xl ${item.rating > 8 ? "text-primary-emerald" : "text-accent"} font-bold`}
-        >
-          {item.rating}/10
-        </Text>
-      </View>
-      <View className="p-4 gap-1">
-        {item.transitSequence.map((step, index) => {
-          // Titik berangkat: origin untuk step pertama, destination step sebelumnya untuk sisanya
-          const fromName =
-            index === 0
-              ? (item.origin ?? "Lokasi Anda")
-              : item.transitSequence[index - 1].destination;
+    <View className="bg-dark-2 border border-light-3/10 rounded-xl overflow-hidden">
+      <View className="p-4 gap-0">
+        {item.legs.map((leg, index) => {
+          const isLast = index === item.legs.length - 1;
+          const isFirst = index === 0;
 
           return (
-            <View key={index} className="flex-row">
-              {/* Kolom Waktu */}
-              <View className="w-1/5 items-center">
-                {index === 0 ? (
-                  <Ionicons name="time" color="#FFFFFF" size={22} />
+            <View key={index} className="flex-row min-h-[60px]">
+              {/* Timeline Column */}
+              <View className="w-12 items-center">
+                {isFirst ? (
+                  <View className="w-3 h-3 rounded-full bg-light-1 mt-1.5" />
                 ) : (
-                  <Text className="text-light-2 text-md">8:15</Text>
+                  <View className="w-3 h-3 rounded-full bg-dark-4 border border-light-3 mt-1.5" />
+                )}
+                {!isLast && (
+                  <View className="w-0.5 bg-light-3/30 flex-1 my-1" />
                 )}
               </View>
 
-              {/* Kolom Timeline Icon */}
-              <View className="items-center gap-1">
-                <Ionicons name="location" color="#FFFFFF" size={22} />
-                <View className="w-0.5 bg-light-3 flex-1 rounded-xl" />
-              </View>
+              {/* Content Column */}
+              <View className="flex-1 pb-6 pl-2">
+                <Text className="text-light-1 font-bold text-base">
+                  {isFirst ? originName : leg.from}
+                </Text>
 
-              {/* Kolom Deskripsi Step */}
-              <View className="flex-1 px-4 pb-4">
-                <Text className="text-md text-light-1 font-bold">
-                  {fromName}
-                </Text>
-                <Text className="text-sm text-light-2">
-                  {modeMap[step.mode] ?? step.mode} menuju {step.destination}
-                </Text>
+                <View className="flex-row items-center gap-2 mt-1 mb-1">
+                  <View className="bg-dark-4 px-2 py-0.5 rounded border border-light-3/10">
+                    <Text className="text-light-2 text-xs font-semibold uppercase">
+                      {leg.mode}
+                    </Text>
+                  </View>
+                  {leg.service && (
+                    <Text className="text-light-3 text-xs">{leg.service}</Text>
+                  )}
+                </View>
+
+                <View className="flex-row items-center gap-1 mt-1">
+                  <Ionicons name="arrow-down" size={14} color="#71717A" />
+                  <Text className="text-light-2 text-sm">Menuju {leg.to}</Text>
+                </View>
               </View>
             </View>
           );
         })}
 
-        {/* Titik Akhir (Tujuan Final) */}
+        {/* Final Destination */}
         <View className="flex-row">
-          <View className="w-1/5 items-center">
-            <Text className="text-light-2">8:15</Text>
+          <View className="w-12 items-center">
+            <View className="w-3 h-3 rounded-full bg-primary-emerald mt-1.5" />
           </View>
-          <View className="items-center gap-1">
-            <Ionicons name="location" color="#FFFFFF" size={22} />
-            <View className="w-0.5 bg-light-3 h-0 rounded-xl" />
-          </View>
-          <View className="flex-1 px-4">
-            <Text className="text-md text-light-1 font-bold">Tujuan Anda</Text>
-            <Text className="text-sm text-light-2">
-              Sampai dengan selamat 🎉
+          <View className="flex-1 pl-2">
+            <Text className="text-primary-emerald font-bold text-base">
+              {item.legs[item.legs.length - 1].to}
             </Text>
+            <Text className="text-light-3 text-xs mt-1">Tiba di tujuan</Text>
           </View>
         </View>
       </View>
